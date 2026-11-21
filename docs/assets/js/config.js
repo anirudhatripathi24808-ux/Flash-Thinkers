@@ -9,7 +9,7 @@
                   window.location.protocol === "file:";
 
   // Default live backend URL
-  const DEFAULT_RENDER_URL = "https://63264f0acf92b1.app.lhr.life";
+  const DEFAULT_RENDER_URL = "https://d728fb1ffc0269.app.lhr.life";
 
   // Check saved override from localStorage or fallback
   let configuredUrl = localStorage.getItem("FLASHNOVA_BACKEND_URL");
