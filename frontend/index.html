@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLASHNOVA – Futuristic Next-Gen EdTech Platform</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Cyber Stylesheets -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+  <!-- Ambient Cyber Background -->
+  <div class="cyber-bg"></div>
+  <div class="cyber-grid"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar-cyber">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo-icon">⚡</div>
+      <div>
+        <span class="brand-text text-gradient">FLASHNOVA</span>
+        <span class="brand-tagline-sub">Every Student Matters. Every Confusion Counts.</span>
+      </div>
+    </a>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn-cyber btn-cyber-outline btn-cyber-sm" id="btn-backend-settings" title="Backend Server Settings">
+        <i class="fa-solid fa-server"></i> <span class="d-none-sm">API Settings</span>
+      </button>
+      <button class="btn-cyber btn-cyber-outline btn-cyber-sm" onclick="openModal('modal-student-login')">
+        <i class="fa-solid fa-user-graduate"></i> Student Portal
+      </button>
+      <button class="btn-cyber btn-cyber-primary btn-cyber-sm" onclick="openModal('modal-teacher-login')">
+        <i class="fa-solid fa-chalkboard-user"></i> Teacher Hub
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="container" style="padding-top: 4rem; padding-bottom: 5rem;">
+    <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+      <div class="badge-cyber badge-cyan mb-3" style="display: inline-flex;">
+        <i class="fa-solid fa-bolt"></i> NEXT-GENERATION CLASSROOM REAL-TIME RADAR
+      </div>
+      
+      <h1 style="font-size: clamp(2.5rem, 5vw, 4.2rem); line-height: 1.15; margin-bottom: 1.5rem;">
+        Transforming Real-Time Learning with <span class="text-gradient">FLASHNOVA</span>
+      </h1>
+      
+      <p style="font-size: 1.25rem; color: #94a3b8; margin-bottom: 2.5rem; font-weight: 400; line-height: 1.6;">
+        "Every Student Matters. Every Confusion Counts."<br/>
+        Dynamic 10-second rotating QR entry, anonymous student confusion radar, privacy-guaranteed analytics, and automated question-driven attendance.
+      </p>
+
+      <div class="d-flex justify-content-center gap-3 flex-wrap mb-5">
+        <button class="btn-cyber btn-cyber-primary btn-cyber-lg" onclick="openModal('modal-student-login')">
+          <i class="fa-solid fa-qrcode"></i> Enter Student Portal
+        </button>
+        <button class="btn-cyber btn-cyber-purple btn-cyber-lg" onclick="openModal('modal-teacher-login')">
+          <i class="fa-solid fa-tower-broadcast"></i> Classroom Control Center
+        </button>
+      </div>
+
+      <!-- Quick Stats Banner -->
+      <div class="grid-4 text-left mt-5">
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Dynamic QR</span>
+            <div class="stat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          </div>
+          <div class="stat-value text-cyan">10s</div>
+          <div class="stat-subtext">Cryptographic Rotation Window</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Confusion Radar</span>
+            <div class="stat-icon" style="color: var(--neon-purple); background: rgba(139, 92, 246, 0.1);"><i class="fa-solid fa-chart-pie"></i></div>
+          </div>
+          <div class="stat-value text-purple">100%</div>
+          <div class="stat-subtext">Anonymous Feedback Channels</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Privacy Protection</span>
+            <div class="stat-icon" style="color: var(--neon-emerald); background: rgba(16, 185, 129, 0.1);"><i class="fa-solid fa-user-secret"></i></div>
+          </div>
+          <div class="stat-value text-emerald">1234******</div>
+          <div class="stat-subtext">Masked 10-Digit Enrollment Numbers</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Automated Attendance</span>
+            <div class="stat-icon" style="color: var(--neon-amber); background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-circle-check"></i></div>
+          </div>
+          <div class="stat-value text-amber">Compulsory</div>
+          <div class="stat-subtext">QR Scan + Question Attempts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Showcase Section -->
+    <section class="mt-5 pt-5">
+      <div class="text-center mb-5">
+        <span class="badge-cyber badge-purple">SYSTEM ARCHITECTURE</span>
+        <h2 style="font-size: 2.2rem; margin-top: 0.5rem;">Engineered for Pure Hackathon Excellence</h2>
+      </div>
+
+      <div class="grid-3">
+        <div class="glass-card">
+          <div class="stat-icon mb-3" style="width: 48px; height: 48px; font-size: 1.4rem;">
+            <i class="fa-solid fa-rotate"></i>
+          </div>
+          <h3 class="mb-2">Rotating Dynamic QR</h3>
+          <p class="text-muted" style="font-size: 0.95rem;">
+            Cryptographically secure tokens refresh every 10 seconds on the teacher's board. Prevents screenshot proxying and enables automatic classroom enrollment.
+          </p>
+        </div>
+
+        <div class="glass-card">
+          <div class="stat-icon mb-3" style="width: 48px; height: 48px; font-size: 1.4rem; color: var(--neon-amber); background: rgba(245, 158, 11, 0.1);">
+            <i class="fa-solid fa-hand-holding-heart"></i>
+          </div>
+          <h3 class="mb-2">Voluntary Doubt Consent</h3>
+          <p class="text-muted" style="font-size: 0.95rem;">
+            Anonymous confusion by default. When a student chooses to "Volunteer to Ask a Doubt", an explicit identity consent dialog authorizes disclosing their name to the teacher.
+          </p>
+        </div>
+
+        <div class="glass-card">
+          <div class="stat-icon mb-3" style="width: 48px; height: 48px; font-size: 1.4rem; color: var(--neon-emerald); background: rgba(16, 185, 129, 0.1);">
+            <i class="fa-solid fa-file-pdf"></i>
+          </div>
+          <h3 class="mb-2">Post-Class PDF & CSV Reports</h3>
+          <p class="text-muted" style="font-size: 0.95rem;">
+            Instant report compilation at the end of every lecture with attendance counts, topic-wise confusion breakdowns, and zero student privacy leakages.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Futuristic Footer -->
+  <footer style="border-top: 1px solid var(--border-glass); padding: 2rem 0; text-align: center; color: #64748b; font-size: 0.85rem;">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <b class="text-white">FLASHNOVA</b> &copy; 2026. "Every Student Matters. Every Confusion Counts."
+      </div>
+      <div>
+        Repository: <a href="https://github.com/anirudhatripathi24808-ux/Flash-Thinkers" target="_blank" class="text-cyan">Flash-Thinkers</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Student Login -->
+  <div class="cyber-modal-overlay" id="modal-student-login">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-user-graduate text-cyan"></i> Student Portal Login</h3>
+        <button class="modal-close" onclick="closeModal('modal-student-login')">&times;</button>
+      </div>
+      <form id="form-student-login">
+        <div class="form-group">
+          <label class="form-label">10-Digit Enrollment Number</label>
+          <input type="text" id="login-student-enrollment" class="form-control" placeholder="e.g. 1234567890" maxlength="10" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-student-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-primary w-100 mt-2">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Login to Portal
+        </button>
+      </form>
+      <div class="text-center mt-3" style="font-size: 0.85rem; color: #94a3b8;">
+        New student? <a href="javascript:void(0)" onclick="closeModal('modal-student-login'); openModal('modal-student-register');" class="text-cyan">Register Here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Student Register -->
+  <div class="cyber-modal-overlay" id="modal-student-register">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-id-card text-cyan"></i> Student Registration</h3>
+        <button class="modal-close" onclick="closeModal('modal-student-register')">&times;</button>
+      </div>
+      <form id="form-student-register">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="reg-student-name" class="form-control" placeholder="e.g. Alex Johnson" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Enrollment Number (Exactly 10 Digits)</label>
+          <input type="text" id="reg-student-enrollment" class="form-control" placeholder="e.g. 2026101234" maxlength="10" pattern="[0-9]{10}" title="Must be exactly 10 numeric digits" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <input type="password" id="reg-student-password" class="form-control" placeholder="Min 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="reg-student-confirm" class="form-control" placeholder="Re-enter password" required>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <input type="checkbox" id="reg-student-demo" class="consent-checkbox">
+          <label for="reg-student-demo" style="font-size: 0.8rem; color: #94a3b8; cursor: pointer;">
+            Mark as Hackathon Demo Account (Unverified)
+          </label>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-primary w-100">
+          <i class="fa-solid fa-user-plus"></i> Complete Registration
+        </button>
+      </form>
+      <div class="text-center mt-3" style="font-size: 0.85rem; color: #94a3b8;">
+        Already registered? <a href="javascript:void(0)" onclick="closeModal('modal-student-register'); openModal('modal-student-login');" class="text-cyan">Login Here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Teacher Login (Step 1) -->
+  <div class="cyber-modal-overlay" id="modal-teacher-login">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-chalkboard-user text-purple"></i> Teacher Hub Login</h3>
+        <button class="modal-close" onclick="closeModal('modal-teacher-login')">&times;</button>
+      </div>
+      <form id="form-teacher-login">
+        <div class="form-group">
+          <label class="form-label">Teacher Username</label>
+          <input type="text" id="login-teacher-username" class="form-control" placeholder="e.g. prof_smith" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-teacher-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-purple w-100 mt-2">
+          <i class="fa-solid fa-arrow-right"></i> Verify Credentials
+        </button>
+      </form>
+      <div class="text-center mt-3" style="font-size: 0.85rem; color: #94a3b8;">
+        New teacher? <a href="javascript:void(0)" onclick="closeModal('modal-teacher-login'); openModal('modal-teacher-register');" class="text-purple">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Teacher Register -->
+  <div class="cyber-modal-overlay" id="modal-teacher-register">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-user-tie text-purple"></i> Teacher Registration</h3>
+        <button class="modal-close" onclick="closeModal('modal-teacher-register')">&times;</button>
+      </div>
+      <form id="form-teacher-register">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="reg-teacher-name" class="form-control" placeholder="e.g. Dr. Eleanor Vance" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="reg-teacher-username" class="form-control" placeholder="e.g. eleanor_vance" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <input type="text" id="reg-teacher-dept" class="form-control" placeholder="e.g. Department of Engineering" value="Engineering">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <input type="password" id="reg-teacher-password" class="form-control" placeholder="Min 6 characters" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="reg-teacher-confirm" class="form-control" placeholder="Re-enter password" required>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-purple w-100">
+          <i class="fa-solid fa-user-check"></i> Register Teacher Account
+        </button>
+      </form>
+      <div class="text-center mt-3" style="font-size: 0.85rem; color: #94a3b8;">
+        Already registered? <a href="javascript:void(0)" onclick="closeModal('modal-teacher-register'); openModal('modal-teacher-login');" class="text-purple">Login Here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Step 2 Subject Selection -->
+  <div class="cyber-modal-overlay" id="modal-teacher-subjects">
+    <div class="cyber-modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-book-bookmark text-cyan"></i> Select Your Teaching Subject</h3>
+        <button class="modal-close" onclick="closeModal('modal-teacher-subjects')">&times;</button>
+      </div>
+      <p class="text-muted mb-3" style="font-size: 0.9rem;">
+        Choose the authorized subject for your session. You will be prompted to enter its specific access code.
+      </p>
+
+      <div class="d-flex flex-column gap-3 mb-3">
+        <!-- Subject 1: Mathematics MAT121 -->
+        <div class="glass-card subject-select-card p-3 cursor-pointer" data-subject-code="MAT121" data-subject-name="Mathematics">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="text-white mb-1">Mathematics</h4>
+              <span class="badge-cyber badge-cyan">MAT121</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-cyan"></i>
+          </div>
+        </div>
+
+        <!-- Subject 2: Chemistry CHM131 -->
+        <div class="glass-card subject-select-card p-3 cursor-pointer" data-subject-code="CHM131" data-subject-name="Chemistry">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="text-white mb-1">Chemistry</h4>
+              <span class="badge-cyber badge-purple">CHM131</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-purple"></i>
+          </div>
+        </div>
+
+        <!-- Subject 3: Workshop WSP111 -->
+        <div class="glass-card subject-select-card p-3 cursor-pointer" data-subject-code="WSP111" data-subject-name="Workshop">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="text-white mb-1">Workshop</h4>
+              <span class="badge-cyber badge-emerald">WSP111</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-emerald"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Step 3 Subject Code Verification -->
+  <div class="cyber-modal-overlay" id="modal-verify-subject">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="verify-subject-title"><i class="fa-solid fa-key text-amber"></i> Verify Subject Access Code</h3>
+        <button class="modal-close" onclick="closeModal('modal-verify-subject')">&times;</button>
+      </div>
+      <form id="form-verify-subject">
+        <div class="form-group">
+          <label class="form-label">Subject Access Code</label>
+          <input type="text" id="input-access-code" class="form-control" placeholder="Enter code (e.g. MAT121)" required>
+          <small class="text-muted">Hackathon Default Codes: Mathematics: <code>MAT121</code>, Chemistry: <code>CHM131</code>, Workshop: <code>WSP111</code></small>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-primary w-100 mt-2">
+          <i class="fa-solid fa-lock-open"></i> Unlock Subject Control Center
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Core Scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

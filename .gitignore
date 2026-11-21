@@ -1,0 +1,47 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Database & Local storage
+*.db
+*.sqlite3
+backend/flashnova.db
+flashnova.db
+backend/uploads/*
+uploads/*
+!backend/uploads/.gitkeep
+!uploads/.gitkeep
+
+# Environment variables & secrets
+.env
+.env.local
+*.secret
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

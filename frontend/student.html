@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal – FLASHNOVA</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Cyber Stylesheets -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+  <!-- Ambient Cyber Background -->
+  <div class="cyber-bg"></div>
+  <div class="cyber-grid"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar-cyber">
+    <a href="student.html" class="brand-container">
+      <div class="brand-logo-icon">⚡</div>
+      <div>
+        <span class="brand-text text-gradient">FLASHNOVA</span>
+        <span class="brand-tagline-sub">Student Learning Portal</span>
+      </div>
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="text-right d-none-sm">
+        <div class="text-white font-weight-bold" id="student-name-display">Loading...</div>
+        <div class="text-muted" style="font-size: 0.75rem;">
+          Enrollment: <span class="text-cyan font-weight-bold" id="student-enrollment-display">...</span>
+          <span class="badge-cyber badge-amber ml-1" id="student-demo-badge" style="display: none;">Demo</span>
+        </div>
+      </div>
+      <button class="btn-cyber btn-cyber-danger btn-cyber-sm btn-logout">
+        <i class="fa-solid fa-power-off"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <!-- Active Lecture Card -->
+    <div id="card-active-lecture" class="glass-card mb-4" style="border-color: rgba(0, 242, 254, 0.4); display: none;">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-cyber badge-cyan"><i class="fa-solid fa-broadcast-tower fa-beat"></i> LIVE LECTURE</span>
+          <span class="badge-cyber badge-purple" id="active-lec-subject">Subject</span>
+        </div>
+        <div id="student-attendance-status" class="badge-cyber badge-coral">
+          <i class="fa-solid fa-circle-xmark"></i> Not Marked
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="text-white mb-1" id="active-lec-topic">Lecture Topic</h2>
+          <div class="text-muted" style="font-size: 0.9rem;">
+            Classroom: <span class="text-white" id="active-lec-classroom">Classroom</span>
+          </div>
+        </div>
+        <div>
+          <button class="btn-cyber btn-cyber-primary btn-cyber-sm" onclick="openModal('modal-qr-scanner')">
+            <i class="fa-solid fa-qrcode"></i> Scan Lecture QR Code
+          </button>
+        </div>
+      </div>
+
+      <!-- Triple Understanding Feedback Buttons -->
+      <div class="mt-4">
+        <div class="text-muted font-mono mb-2" style="font-size: 0.85rem; letter-spacing: 0.05em;">
+          <i class="fa-solid fa-signal text-cyan"></i> REAL-TIME UNDERSTANDING RADAR (100% ANONYMOUS):
+        </div>
+        <div class="understanding-group">
+          <!-- Button 1: I UNDERSTAND -->
+          <button class="btn-feedback btn-understand" data-status="UNDERSTAND">
+            <i class="fa-solid fa-circle-check"></i>
+            <span class="btn-feedback-title">I UNDERSTAND</span>
+            <span class="btn-feedback-sub">Pace and concept are clear</span>
+          </button>
+
+          <!-- Button 2: I HAVE A DOUBT -->
+          <button class="btn-feedback btn-doubt" data-status="DOUBT">
+            <i class="fa-solid fa-circle-question"></i>
+            <span class="btn-feedback-title">I HAVE A DOUBT</span>
+            <span class="btn-feedback-sub">Need quick clarification</span>
+          </button>
+
+          <!-- Button 3: I DON'T UNDERSTAND -->
+          <button class="btn-feedback btn-dont-understand" data-status="DONT_UNDERSTAND">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span class="btn-feedback-title">I DON'T UNDERSTAND</span>
+            <span class="btn-feedback-sub">Concept is unclear / repeat</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- VOLUNTEER TO ASK A DOUBT Button -->
+      <button class="btn-volunteer-doubt" onclick="openModal('modal-volunteer-doubt')">
+        <i class="fa-solid fa-hand-holding-hand fa-beat-fade"></i> VOLUNTEER TO ASK A DOUBT
+        <span class="badge-cyber badge-purple ml-2" style="font-size: 0.75rem;">Direct Teacher Channel</span>
+      </button>
+    </div>
+
+    <!-- Fallback when no active lecture -->
+    <div id="no-active-lecture-msg" class="glass-card text-center py-4 mb-4" style="display: none;">
+      <i class="fa-solid fa-chalkboard text-muted" style="font-size: 2.5rem; margin-bottom: 0.75rem;"></i>
+      <h3 class="text-white mb-2">No Active Live Lecture</h3>
+      <p class="text-muted">Your teacher has not started a live lecture session yet. You can still scan a QR code to join or review questions below.</p>
+      <button class="btn-cyber btn-cyber-outline btn-cyber-sm mt-3" onclick="openModal('modal-qr-scanner')">
+        <i class="fa-solid fa-qrcode"></i> Scan Classroom QR Code
+      </button>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid-2">
+      <!-- Left Column: Questions -->
+      <div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-circle-question text-cyan"></i> Assigned Questions</h3>
+          <span class="text-muted" style="font-size: 0.8rem;">Answer now or later</span>
+        </div>
+        <div id="student-questions-container">
+          <p class="text-muted text-center py-3">Loading questions...</p>
+        </div>
+      </div>
+
+      <!-- Right Column: Study Materials & Doubts -->
+      <div>
+        <!-- Study Materials -->
+        <div class="glass-panel p-3 mb-4">
+          <h3 class="text-white mb-3"><i class="fa-solid fa-folder-open text-purple"></i> Classroom Study Materials</h3>
+          <div id="student-files-container">
+            <p class="text-muted text-center py-3">Loading files...</p>
+          </div>
+        </div>
+
+        <!-- My Doubts & Teacher Replies -->
+        <div class="glass-panel p-3 mb-4">
+          <h3 class="text-white mb-3"><i class="fa-solid fa-comments text-amber"></i> My Voluntary Doubts & Replies</h3>
+          <div id="student-doubts-container">
+            <p class="text-muted text-center py-3">Loading doubt history...</p>
+          </div>
+        </div>
+
+        <!-- Attendance History -->
+        <div class="glass-panel p-3">
+          <h3 class="text-white mb-3"><i class="fa-solid fa-calendar-check text-emerald"></i> Attendance History</h3>
+          <div class="cyber-table-responsive">
+            <table class="cyber-table">
+              <thead>
+                <tr>
+                  <th>Topic</th>
+                  <th>Classroom</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="student-attendance-history">
+                <tr><td colspan="4" class="text-center text-muted">Loading attendance...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Scan QR Code -->
+  <div class="cyber-modal-overlay" id="modal-qr-scanner">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-qrcode text-cyan"></i> Join Active Classroom</h3>
+        <button class="modal-close" onclick="closeModal('modal-qr-scanner')">&times;</button>
+      </div>
+      <p class="text-muted mb-3" style="font-size: 0.85rem;">
+        Enter or scan the rotating 10-second cryptographic QR token displayed on the teacher's board.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Active QR Token</label>
+        <input type="text" id="input-qr-token" class="form-control" placeholder="Paste or scan token..." autofocus>
+      </div>
+      <button type="button" id="btn-submit-qr-token" class="btn-cyber btn-cyber-primary w-100">
+        <i class="fa-solid fa-circle-check"></i> Verify & Enter Classroom
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Volunteer To Ask A Doubt (With Identity Disclosure Consent) -->
+  <div class="cyber-modal-overlay" id="modal-volunteer-doubt">
+    <div class="cyber-modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-hand-holding-heart text-purple"></i> Volunteer to Ask a Doubt</h3>
+        <button class="modal-close" onclick="closeModal('modal-volunteer-doubt')">&times;</button>
+      </div>
+      <form id="form-volunteer-doubt">
+        <div class="form-group">
+          <label class="form-label">Topic / Concept</label>
+          <input type="text" id="doubt-topic" class="form-control" placeholder="e.g. Eigenvalues & Matrix Diagonalization">
+        </div>
+        <div class="form-group">
+          <label class="form-label">What is confusing you? Describe your question:</label>
+          <textarea id="doubt-text" class="form-control" rows="4" placeholder="Explain the specific step or concept you are having difficulty with..." required></textarea>
+        </div>
+
+        <!-- REQUIRED PRIVACY DISCLOSURE CONSENT BOX -->
+        <div class="consent-box">
+          <input type="checkbox" id="doubt-consent-checkbox" class="consent-checkbox" required>
+          <label for="doubt-consent-checkbox" class="consent-text">
+            <b class="text-white">Identity Disclosure Confirmation:</b><br/>
+            I understand and explicitly consent that my <b>Full Name</b> and <b>Full 10-Digit Enrollment Number</b> will be shared with the authorized teacher for this specific doubt request so they can assist me directly.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-cyber btn-cyber-purple w-100">
+          <i class="fa-solid fa-paper-plane"></i> Submit Consented Doubt Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Socket.IO CDN -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  
+  <!-- Core Scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/student.js"></script>
+</body>
+</html>

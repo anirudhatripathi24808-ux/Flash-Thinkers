@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Hub – FLASHNOVA Control Center</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Cyber Stylesheets -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+  <!-- Ambient Cyber Background -->
+  <div class="cyber-bg"></div>
+  <div class="cyber-grid"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar-cyber">
+    <a href="teacher.html" class="brand-container">
+      <div class="brand-logo-icon">⚡</div>
+      <div>
+        <span class="brand-text text-gradient">FLASHNOVA</span>
+        <span class="brand-tagline-sub">Classroom Control Center</span>
+      </div>
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="text-right d-none-sm">
+        <div class="text-white font-weight-bold" id="teacher-name-display">Loading...</div>
+        <div id="teacher-subject-badge" class="badge-cyber badge-purple">Subject</div>
+      </div>
+      <button class="btn-cyber btn-cyber-danger btn-cyber-sm btn-logout">
+        <i class="fa-solid fa-power-off"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <!-- Top Action & Classroom Bar -->
+    <div class="glass-card mb-4 p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <label class="form-label mb-0" style="color: #38bdf8; font-weight: 600;">Active Classroom:</label>
+        <select id="select-active-classroom" class="form-control" style="width: auto; min-width: 240px; padding: 0.45rem 1rem;">
+          <option value="">Loading classrooms...</option>
+        </select>
+        <button class="btn-cyber btn-cyber-outline btn-cyber-sm" onclick="openModal('modal-create-classroom')">
+          <i class="fa-solid fa-plus"></i> New Classroom
+        </button>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn-cyber btn-cyber-outline btn-cyber-sm" id="btn-export-csv">
+          <i class="fa-solid fa-file-csv text-cyan"></i> Export CSV
+        </button>
+        <button class="btn-cyber btn-cyber-outline btn-cyber-sm" id="btn-export-pdf">
+          <i class="fa-solid fa-file-pdf text-purple"></i> Export PDF Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Lecture Controller & Dynamic 10s QR Section -->
+    <div class="grid-2 mb-4">
+      <!-- Section A: Live Lecture Controls -->
+      <div class="glass-panel p-4">
+        <!-- If Lecture is Active -->
+        <div id="section-active-lecture" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge-cyber badge-cyan"><i class="fa-solid fa-tower-broadcast fa-beat"></i> LECTURE IN PROGRESS</span>
+            <button class="btn-cyber btn-cyber-danger btn-cyber-sm" id="btn-stop-lecture">
+              <i class="fa-solid fa-stop"></i> End Lecture
+            </button>
+          </div>
+          <h2 class="text-white mb-2" id="control-lecture-topic">Topic Name</h2>
+          <p class="text-muted mb-4" style="font-size: 0.85rem;">
+            Dynamic 10-second rotating QR is actively broadcasting to eligible students. All attendance and confusion analytics update in real time.
+          </p>
+
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn-cyber btn-cyber-primary btn-cyber-sm" onclick="openModal('modal-create-question')">
+              <i class="fa-solid fa-plus"></i> Add Question (MCQ)
+            </button>
+            <button class="btn-cyber btn-cyber-purple btn-cyber-sm" onclick="openModal('modal-upload-file')">
+              <i class="fa-solid fa-upload"></i> Upload Study File
+            </button>
+          </div>
+        </div>
+
+        <!-- If No Active Lecture -->
+        <div id="section-start-lecture">
+          <h3 class="text-white mb-2"><i class="fa-solid fa-play text-cyan"></i> Start New Lecture</h3>
+          <p class="text-muted mb-3" style="font-size: 0.85rem;">
+            Enter a lecture topic to initialize the live classroom session and generate the rotating QR code.
+          </p>
+          <form id="form-start-lecture">
+            <div class="form-group">
+              <label class="form-label">Lecture Topic / Subject Chapter</label>
+              <input type="text" id="input-lecture-topic" class="form-control" placeholder="e.g. Chapter 4: Calculus & Limits" required>
+            </div>
+            <button type="submit" class="btn-cyber btn-cyber-primary w-100">
+              <i class="fa-solid fa-bolt"></i> Launch Live Lecture & QR
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Section B: Dynamic 10s QR Container -->
+      <div class="qr-container">
+        <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+          <span class="badge-cyber badge-cyan"><i class="fa-solid fa-shield-halved"></i> DYNAMIC QR TOKEN</span>
+          <div class="countdown-wrapper">
+            <span>Rotates in:</span>
+            <div class="countdown-circle" id="qr-countdown-circle">
+              <div class="countdown-inner" id="qr-countdown-text">10s</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="qr-box" id="qr-canvas-container">
+          <div class="text-muted p-4 text-center">Start a lecture to generate dynamic QR</div>
+        </div>
+
+        <div class="text-center">
+          <div class="text-muted" style="font-size: 0.75rem;">Cryptographic Token:</div>
+          <code id="display-qr-token-text" class="text-cyan font-mono" style="font-size: 0.8rem; word-break: break-all;">No active token</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Statistics Cards -->
+    <div class="grid-4 mb-4">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Total Enrolled</span>
+          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        </div>
+        <div class="stat-value text-white" id="stat-eligible-students">0</div>
+        <div class="stat-subtext">Classroom Capacity</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Joined Session</span>
+          <div class="stat-icon" style="color: var(--neon-cyan); background: rgba(0, 242, 254, 0.1);"><i class="fa-solid fa-qrcode"></i></div>
+        </div>
+        <div class="stat-value text-cyan" id="stat-joined-students">0</div>
+        <div class="stat-subtext">Valid QR Scans</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Attendance Rate</span>
+          <div class="stat-icon" style="color: var(--neon-emerald); background: rgba(16, 185, 129, 0.1);"><i class="fa-solid fa-chart-line"></i></div>
+        </div>
+        <div class="stat-value text-emerald" id="stat-attendance-rate">0%</div>
+        <div class="stat-subtext">Present (QR + Questions)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Confusion Rate</span>
+          <div class="stat-icon" style="color: var(--neon-amber); background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        </div>
+        <div class="stat-value text-amber" id="stat-doubt-rate">0%</div>
+        <div class="stat-subtext">Students needing clarification</div>
+      </div>
+    </div>
+
+    <!-- Analytics & Visualization Section -->
+    <div class="grid-2 mb-4">
+      <!-- Confusion Radar Chart -->
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-signal text-cyan"></i> Real-Time Confusion Radar</h3>
+          <span class="badge-cyber badge-purple">100% Anonymous</span>
+        </div>
+        <div style="height: 240px; position: relative;">
+          <canvas id="chart-confusion"></canvas>
+        </div>
+      </div>
+
+      <!-- Topic Confusion Distribution Chart -->
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-chart-simple text-purple"></i> Topic Confusion Breakdown</h3>
+          <span class="badge-cyber badge-cyan">Real-time</span>
+        </div>
+        <div style="height: 240px; position: relative;">
+          <canvas id="chart-topic-confusion"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance & Doubt Management -->
+    <div class="grid-2 mb-4">
+      <!-- Attendance Records (STRICT PRIVACY: Masked 1234******) -->
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-user-check text-emerald"></i> Attendance Records</h3>
+          <span class="badge-cyber badge-emerald" title="Masked 1234******"><i class="fa-solid fa-lock"></i> Privacy Guaranteed</span>
+        </div>
+        <p class="text-muted mb-3" style="font-size: 0.8rem;">
+          Zero student name leakage. Only masked 10-digit enrollment numbers are exposed.
+        </p>
+        <div class="cyber-table-responsive" style="max-height: 300px; overflow-y: auto;">
+          <table class="cyber-table">
+            <thead>
+              <tr>
+                <th>Masked Enrollment</th>
+                <th>Status</th>
+                <th>QR Scanned At</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-attendance-records">
+              <tr><td colspan="3" class="text-center text-muted">No students in session.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Voluntary Doubt Inbox -->
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-inbox text-amber"></i> Voluntary Doubt Inbox</h3>
+          <span class="badge-cyber badge-amber">Consented Disclosures</span>
+        </div>
+        <p class="text-muted mb-3" style="font-size: 0.8rem;">
+          Students who explicitly clicked "Volunteer to Ask a Doubt" authorize sharing their identity for personal guidance.
+        </p>
+        <div id="teacher-doubts-container" style="max-height: 300px; overflow-y: auto;">
+          <p class="text-muted text-center py-4">No voluntary doubts submitted yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions & Materials Management -->
+    <div class="grid-2 mb-4">
+      <!-- Questions Panel -->
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-clipboard-question text-cyan"></i> Manual Questions (MCQs)</h3>
+          <button class="btn-cyber btn-cyber-primary btn-cyber-sm" onclick="openModal('modal-create-question')">
+            <i class="fa-solid fa-plus"></i> New Question
+          </button>
+        </div>
+        <div id="teacher-questions-container" style="max-height: 320px; overflow-y: auto;">
+          <p class="text-muted text-center py-3">Loading questions...</p>
+        </div>
+      </div>
+
+      <!-- Study Materials Panel -->
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white"><i class="fa-solid fa-file-arrow-up text-purple"></i> Uploaded Study Materials</h3>
+          <button class="btn-cyber btn-cyber-purple btn-cyber-sm" onclick="openModal('modal-upload-file')">
+            <i class="fa-solid fa-upload"></i> Upload File
+          </button>
+        </div>
+        <div id="teacher-files-container" style="max-height: 320px; overflow-y: auto;">
+          <p class="text-muted text-center py-3">Loading files...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Create Classroom -->
+  <div class="cyber-modal-overlay" id="modal-create-classroom">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-chalkboard text-cyan"></i> Create Classroom</h3>
+        <button class="modal-close" onclick="closeModal('modal-create-classroom')">&times;</button>
+      </div>
+      <form id="form-create-classroom">
+        <div class="form-group">
+          <label class="form-label">Classroom Name</label>
+          <input type="text" id="input-classroom-name" class="form-control" placeholder="e.g. Batch A – Morning Lecture" required>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <input type="checkbox" id="check-classroom-auto-enroll" class="consent-checkbox" checked>
+          <label for="check-classroom-auto-enroll" style="font-size: 0.85rem; color: #e2e8f0; cursor: pointer;">
+            Allow QR-Based Auto-Enrollment (Students join automatically upon scanning valid QR)
+          </label>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-primary w-100">
+          <i class="fa-solid fa-check"></i> Create Classroom
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create Question (MCQ) -->
+  <div class="cyber-modal-overlay" id="modal-create-question">
+    <div class="cyber-modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-circle-question text-cyan"></i> Create MCQ Question</h3>
+        <button class="modal-close" onclick="closeModal('modal-create-question')">&times;</button>
+      </div>
+      <form id="form-create-question">
+        <div class="form-group">
+          <label class="form-label">Question Text</label>
+          <textarea id="q-text" class="form-control" rows="2" placeholder="e.g. What is the derivative of sin(x)?" required></textarea>
+        </div>
+        
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Option A</label>
+            <input type="text" id="q-opt-a" class="form-control" placeholder="Option A" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Option B</label>
+            <input type="text" id="q-opt-b" class="form-control" placeholder="Option B" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Option C</label>
+            <input type="text" id="q-opt-c" class="form-control" placeholder="Option C" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Option D</label>
+            <input type="text" id="q-opt-d" class="form-control" placeholder="Option D" required>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="form-group">
+            <label class="form-label">Correct Answer</label>
+            <select id="q-correct" class="form-control" required>
+              <option value="A">Option A</option>
+              <option value="B">Option B</option>
+              <option value="C">Option C</option>
+              <option value="D">Option D</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Topic</label>
+            <input type="text" id="q-topic" class="form-control" placeholder="e.g. Differentiation" value="General">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Difficulty</label>
+            <select id="q-difficulty" class="form-control">
+              <option value="Easy">Easy</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <input type="checkbox" id="q-compulsory" class="consent-checkbox" checked>
+          <label for="q-compulsory" style="font-size: 0.85rem; color: #e2e8f0; cursor: pointer;">
+            Compulsory for Attendance (Students must attempt this question to become 'Present')
+          </label>
+        </div>
+
+        <button type="submit" class="btn-cyber btn-cyber-primary w-100">
+          <i class="fa-solid fa-plus"></i> Publish Question
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Upload Study File -->
+  <div class="cyber-modal-overlay" id="modal-upload-file">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-cloud-arrow-up text-purple"></i> Upload Study Material</h3>
+        <button class="modal-close" onclick="closeModal('modal-upload-file')">&times;</button>
+      </div>
+      <form id="form-upload-file">
+        <div class="form-group">
+          <label class="form-label">Document Title</label>
+          <input type="text" id="file-title" class="form-control" placeholder="e.g. Lecture 4 Slides & Formula Sheet" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description (Optional)</label>
+          <input type="text" id="file-desc" class="form-control" placeholder="Brief notes or reading instructions">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select File (PDF, DOCX, PPTX, JPG, PNG, TXT)</label>
+          <input type="file" id="file-input" class="form-control" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.txt" required>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-purple w-100">
+          <i class="fa-solid fa-upload"></i> Upload & Publish to Students
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Reply to Doubt -->
+  <div class="cyber-modal-overlay" id="modal-reply-doubt">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="reply-modal-title"><i class="fa-solid fa-reply text-cyan"></i> Reply to Student</h3>
+        <button class="modal-close" onclick="closeModal('modal-reply-doubt')">&times;</button>
+      </div>
+      <form id="form-reply-doubt">
+        <input type="hidden" id="reply-doubt-id">
+        <div class="form-group">
+          <label class="form-label">Teacher Response / Guidance</label>
+          <textarea id="input-reply-text" class="form-control" rows="4" placeholder="Write your explanation or instructions here..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Update Doubt Status</label>
+          <select id="select-reply-status" class="form-control">
+            <option value="Resolved" selected>Resolved</option>
+            <option value="In Progress">In Progress</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-cyber btn-cyber-primary w-100">
+          <i class="fa-solid fa-paper-plane"></i> Send Reply
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- CDN Libraries: Chart.js, QRCode.js, Socket.IO -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- Core Scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/charts.js"></script>
+  <script src="assets/js/teacher.js"></script>
+</body>
+</html>
