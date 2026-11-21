@@ -8,8 +8,8 @@
                   window.location.hostname === "127.0.0.1" || 
                   window.location.protocol === "file:";
 
-  // Default production Render backend URL (can be customized or entered via Settings UI)
-  const DEFAULT_RENDER_URL = "https://flashnova-backend.onrender.com";
+  // Default live backend URL
+  const DEFAULT_RENDER_URL = "https://63264f0acf92b1.app.lhr.life";
 
   // Check saved override from localStorage or fallback
   let configuredUrl = localStorage.getItem("FLASHNOVA_BACKEND_URL");
