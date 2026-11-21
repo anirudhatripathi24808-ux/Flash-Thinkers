@@ -76,4 +76,4 @@ if __name__ == "__main__":
     app = create_app()
     port = int(os.getenv("PORT", 5000))
     print(f"Starting FLASHNOVA on http://localhost:{port}")
-    socketio.run(app, host="0.0.0.0", port=port, debug=False)
+    socketio.run(app, host="0.0.0.0", port=port, debug=False, allow_unsafe_werkzeug=True)

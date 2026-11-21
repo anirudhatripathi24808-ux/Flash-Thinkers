@@ -20,4 +20,4 @@ if __name__ == "__main__":
     print("   'Every Student Matters. Every Confusion Counts.'")
     print(f"   Server listening at: http://localhost:{port}")
     print("=" * 60)
-    socketio.run(app, host=host, port=port, debug=False)
+    socketio.run(app, host=host, port=port, debug=False, allow_unsafe_werkzeug=True)
