@@ -171,23 +171,69 @@
 
   <!-- ==================== MODALS ==================== -->
 
-  <!-- Modal: Scan QR Code -->
+  <!-- Modal: Scan QR Code with Live Camera Access -->
   <div class="cyber-modal-overlay" id="modal-qr-scanner">
-    <div class="cyber-modal">
+    <div class="cyber-modal" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title"><i class="fa-solid fa-qrcode text-cyan"></i> Join Active Classroom</h3>
+        <h3 class="modal-title"><i class="fa-solid fa-camera text-cyan"></i> Live Camera QR Attendance</h3>
         <button class="modal-close" onclick="closeModal('modal-qr-scanner')">&times;</button>
       </div>
-      <p class="text-muted mb-3" style="font-size: 0.85rem;">
-        Enter or scan the rotating 10-second cryptographic QR token displayed on the teacher's board.
-      </p>
-      <div class="form-group">
-        <label class="form-label">Active QR Token</label>
-        <input type="text" id="input-qr-token" class="form-control" placeholder="Paste or scan token..." autofocus>
+
+      <!-- Live Camera Viewfinder Box -->
+      <div class="camera-scanner-container mb-3" style="position: relative; background: #070c18; border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 14px; overflow: hidden; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 25px rgba(0, 242, 254, 0.08);">
+        
+        <!-- html5-qrcode camera mount element -->
+        <div id="qr-camera-reader" style="width: 100%; border-radius: 12px; overflow: hidden;"></div>
+
+        <!-- Initial Placeholder / Permission Prompt -->
+        <div id="qr-camera-placeholder" style="padding: 1.75rem 1rem; text-align: center;">
+          <div style="width: 60px; height: 60px; margin: 0 auto 1rem; border-radius: 50%; background: rgba(0, 242, 254, 0.1); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0, 242, 254, 0.3);">
+            <i class="fa-solid fa-camera text-cyan" style="font-size: 1.6rem;"></i>
+          </div>
+          <h4 class="text-white mb-2" style="font-size: 1.1rem;">Camera QR Scanner</h4>
+          <p class="text-muted mb-3" style="font-size: 0.85rem; max-width: 320px; margin: 0 auto 1.25rem;">
+            Grant camera permission to scan the teacher's dynamic 10-second attendance QR code directly from the screen.
+          </p>
+          <button type="button" id="btn-start-camera" class="btn-cyber btn-cyber-primary btn-cyber-sm">
+            <i class="fa-solid fa-video"></i> Activate Camera
+          </button>
+        </div>
+
+        <!-- Camera Controls Bar (visible when camera is actively streaming) -->
+        <div id="qr-camera-active-bar" style="display: none; width: 100%; background: rgba(13, 22, 41, 0.95); border-top: 1px solid rgba(0, 242, 254, 0.3); padding: 0.6rem 1rem; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+          <span class="text-cyan"><i class="fa-solid fa-circle-dot fa-fade text-success"></i> Camera Live • Align QR</span>
+          <div style="display: flex; gap: 0.4rem;">
+            <button type="button" id="btn-switch-camera" class="btn-cyber btn-cyber-outline" style="padding: 3px 8px; font-size: 0.75rem;" title="Switch Camera">
+              <i class="fa-solid fa-camera-rotate"></i> Flip
+            </button>
+            <button type="button" id="btn-stop-camera" class="btn-cyber btn-cyber-danger" style="padding: 3px 8px; font-size: 0.75rem;" title="Stop Camera">
+              <i class="fa-solid fa-stop"></i> Stop
+            </button>
+          </div>
+        </div>
       </div>
-      <button type="button" id="btn-submit-qr-token" class="btn-cyber btn-cyber-primary w-100">
-        <i class="fa-solid fa-circle-check"></i> Verify & Enter Classroom
-      </button>
+
+      <!-- Scanned Status / Manual Fallback Option -->
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <label class="form-label mb-0" style="font-size: 0.82rem; color: #8899a6;">
+          <i class="fa-solid fa-keyboard"></i> Or Enter / Verify Token:
+        </label>
+        <span id="qr-scan-badge" class="badge-cyber badge-cyan" style="display: none; font-size: 0.72rem;">
+          <i class="fa-solid fa-check-circle"></i> Token Detected
+        </span>
+      </div>
+
+      <div class="form-group mb-2">
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="input-qr-token" class="form-control" placeholder="Point camera or paste token...">
+          <button type="button" id="btn-submit-qr-token" class="btn-cyber btn-cyber-primary" style="white-space: nowrap;">
+            <i class="fa-solid fa-circle-check"></i> Submit
+          </button>
+        </div>
+      </div>
+      <p class="text-muted text-center mb-0" style="font-size: 0.75rem;">
+        Attendance requires token verification within the teacher's active lecture cycle.
+      </p>
     </div>
   </div>
 
@@ -234,6 +280,7 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/auth.js"></script>
+  <script src="assets/js/html5-qrcode.min.js"></script>
   <script src="assets/js/student.js"></script>
 </body>
 </html>

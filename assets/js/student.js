@@ -18,6 +18,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnSubmitQr.addEventListener("click", handleQrSubmission);
   }
 
+  // Camera Scanner Controls
+  const btnStartCam = document.getElementById("btn-start-camera");
+  if (btnStartCam) {
+    btnStartCam.addEventListener("click", startQrCamera);
+  }
+  const btnStopCam = document.getElementById("btn-stop-camera");
+  if (btnStopCam) {
+    btnStopCam.addEventListener("click", stopQrCamera);
+  }
+  const btnSwitchCam = document.getElementById("btn-switch-camera");
+  if (btnSwitchCam) {
+    btnSwitchCam.addEventListener("click", toggleCameraFacing);
+  }
+
+  // Listen for modal opened / closed to auto-start and auto-stop camera
+  window.addEventListener("modalOpened", (e) => {
+    if (e.detail === "modal-qr-scanner") {
+      startQrCamera();
+    }
+  });
+
+  window.addEventListener("modalClosed", (e) => {
+    if (e.detail === "modal-qr-scanner") {
+      stopQrCamera();
+    }
+  });
+
   // Bind Understanding Buttons
   document.querySelectorAll(".btn-feedback").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -113,6 +140,123 @@ function updateAttendanceBadge(status) {
     badge.classList.add("badge-coral");
     badge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not Marked (Scan QR to Enter)';
   }
+}
+
+// ==================== LIVE CAMERA QR SCANNER ====================
+let html5QrScannerInstance = null;
+let isCameraRunning = false;
+let currentCameraFacing = "environment"; // default to rear camera on mobile or default webcam
+
+async function startQrCamera() {
+  const readerElem = document.getElementById("qr-camera-reader");
+  const placeholder = document.getElementById("qr-camera-placeholder");
+  const activeBar = document.getElementById("qr-camera-active-bar");
+  if (!readerElem) return;
+
+  if (typeof Html5Qrcode === "undefined") {
+    showToast("Camera scanner library loading... Enter token manually or retry.", "info");
+    return;
+  }
+
+  if (isCameraRunning && html5QrScannerInstance) return;
+
+  try {
+    if (placeholder) placeholder.style.display = "none";
+    if (activeBar) activeBar.style.display = "flex";
+
+    if (!html5QrScannerInstance) {
+      html5QrScannerInstance = new Html5Qrcode("qr-camera-reader");
+    }
+
+    const config = {
+      fps: 12,
+      qrbox: (viewfinderWidth, viewfinderHeight) => {
+        const edge = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72);
+        return { width: Math.max(edge, 180), height: Math.max(edge, 180) };
+      },
+      aspectRatio: 1.0
+    };
+
+    await html5QrScannerInstance.start(
+      { facingMode: currentCameraFacing },
+      config,
+      onQrCameraScanSuccess,
+      onQrCameraScanError
+    );
+
+    isCameraRunning = true;
+    showToast("Camera active: Align the teacher's QR code in frame", "info");
+  } catch (err) {
+    console.warn("Camera start failed:", err);
+    isCameraRunning = false;
+    if (placeholder) placeholder.style.display = "block";
+    if (activeBar) activeBar.style.display = "none";
+
+    const errStr = (err && err.message) ? err.message : String(err);
+    if (errStr.includes("NotAllowedError") || errStr.includes("Permission denied")) {
+      showToast("Camera permission was not granted. You can enter or paste the token below.", "warning");
+    } else {
+      showToast("Camera device unavailable. Enter token manually below.", "info");
+    }
+  }
+}
+
+async function stopQrCamera() {
+  if (html5QrScannerInstance && isCameraRunning) {
+    try {
+      await html5QrScannerInstance.stop();
+    } catch (e) {
+      console.warn("Camera stop error:", e);
+    }
+  }
+  isCameraRunning = false;
+  const placeholder = document.getElementById("qr-camera-placeholder");
+  const activeBar = document.getElementById("qr-camera-active-bar");
+  if (placeholder) placeholder.style.display = "block";
+  if (activeBar) activeBar.style.display = "none";
+}
+
+async function toggleCameraFacing() {
+  currentCameraFacing = (currentCameraFacing === "environment") ? "user" : "environment";
+  await stopQrCamera();
+  await startQrCamera();
+}
+
+function onQrCameraScanSuccess(decodedText) {
+  if (!decodedText) return;
+  console.log("QR scanned from camera:", decodedText);
+
+  let cleanToken = decodedText.trim();
+  try {
+    if (cleanToken.startsWith("http://") || cleanToken.startsWith("https://")) {
+      const parsedUrl = new URL(cleanToken);
+      const urlToken = parsedUrl.searchParams.get("token") || parsedUrl.searchParams.get("code");
+      if (urlToken) cleanToken = urlToken;
+    }
+  } catch (_) {}
+
+  const tokenInput = document.getElementById("input-qr-token");
+  if (tokenInput) {
+    tokenInput.value = cleanToken;
+  }
+
+  const badge = document.getElementById("qr-scan-badge");
+  if (badge) {
+    badge.style.display = "inline-block";
+    badge.innerHTML = '<i class="fa-solid fa-check-circle"></i> Scanned!';
+  }
+
+  showToast("QR Code recognized! Verifying attendance...", "success");
+
+  // Stop camera to release stream
+  stopQrCamera();
+
+  // Auto-submit to mark attendance
+  handleQrSubmission();
+}
+
+function onQrCameraScanError(errorMessage) {
+  // Silent seeking frames
 }
 
 // Handle QR Token Entry (via manual code or camera scan)

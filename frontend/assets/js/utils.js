@@ -40,6 +40,7 @@ function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.add("active");
+    window.dispatchEvent(new CustomEvent("modalOpened", { detail: modalId }));
   }
 }
 
@@ -47,6 +48,7 @@ function closeModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove("active");
+    window.dispatchEvent(new CustomEvent("modalClosed", { detail: modalId }));
   }
 }
 
