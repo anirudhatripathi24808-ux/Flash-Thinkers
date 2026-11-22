@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await verifyStudentSession();
   await loadStudentDashboard();
   setupSocketConnection();
+  setupRealtimeListeners();
 
   // Bind QR manual submission
   const btnSubmitQr = document.getElementById("btn-submit-qr-token");
@@ -299,6 +300,18 @@ async function handleQrSubmission() {
     if (tokenInput) tokenInput.value = "";
     closeModal("modal-qr-scanner");
     await loadStudentDashboard();
+
+    // Broadcast live attendance scan to Teacher Hub in real time
+    const user = JSON.parse(localStorage.getItem("flashnova_user") || "{}");
+    if (window.FLASHNOVA_REALTIME) {
+      window.FLASHNOVA_REALTIME.emit("STUDENT_ATTENDED", {
+        student_name: user.name || "Student",
+        enrollment_no: user.enrollment_no || "2026101234",
+        lecture_topic: res.lecture ? res.lecture.topic : "Live Session",
+        status: res.attendance_status || "Present",
+        timestamp: new Date().toLocaleTimeString()
+      });
+    }
   } else {
     showToast(res.error || "QR validation failed. Check if code expired.", "error");
   }
@@ -326,6 +339,10 @@ async function handleFeedbackSubmit(status) {
     document.querySelectorAll(".btn-feedback").forEach(b => b.classList.remove("active"));
     const activeBtn = document.querySelector(`.btn-feedback[data-status="${status}"]`);
     if (activeBtn) activeBtn.classList.add("active");
+
+    if (window.FLASHNOVA_REALTIME) {
+      window.FLASHNOVA_REALTIME.emit("CONFUSION_UPDATE", { status: status });
+    }
   } else {
     showToast(res.error || "Feedback submission failed.", "error");
   }
@@ -368,6 +385,15 @@ async function handleVolunteerDoubtSubmit(e) {
     document.getElementById("form-volunteer-doubt").reset();
     closeModal("modal-volunteer-doubt");
     await loadMyDoubts();
+
+    const user = JSON.parse(localStorage.getItem("flashnova_user") || "{}");
+    if (window.FLASHNOVA_REALTIME) {
+      window.FLASHNOVA_REALTIME.emit("NEW_DOUBT", {
+        student_name: user.name || "Student",
+        topic: topic,
+        doubt_text: doubtText
+      });
+    }
   } else {
     showToast(res.error || "Doubt submission failed.", "error");
   }
@@ -495,6 +521,19 @@ async function loadQuestions() {
           if (res.attendance_status) {
             updateAttendanceBadge(res.attendance_status);
           }
+
+          const user = JSON.parse(localStorage.getItem("flashnova_user") || "{}");
+          if (window.FLASHNOVA_REALTIME) {
+            window.FLASHNOVA_REALTIME.emit("QUESTION_ANSWERED", {
+              qid: qid,
+              selected_option: chosenKey,
+              student_name: user.name || "Student",
+              enrollment_no: user.enrollment_no || "2026101234",
+              is_correct: res.is_correct,
+              attendance_status: res.attendance_status || "Present"
+            });
+          }
+
           await loadQuestions();
         } else {
           showToast(res.error || "Submission error.", "error");
@@ -640,5 +679,64 @@ function setupSocketConnection() {
   socket.on("attendance_change", (data) => {
     // If attendance updated for this student
     loadStudentDashboard();
+  });
+}
+
+// Realtime Hub Listeners for Student
+function setupRealtimeListeners() {
+  if (!window.FLASHNOVA_REALTIME) return;
+
+  // 1. Teacher created a new question
+  window.FLASHNOVA_REALTIME.on("NEW_QUESTION", async (payload) => {
+    console.log("⚡ Realtime: New Question received from Teacher", payload);
+    const qTitle = (payload && payload.question && payload.question.topic) || "MCQ Quiz";
+    showToast(`🔔 LIVE QUESTION: Teacher published new question on "${qTitle}"!`, "success");
+    await loadQuestions();
+    
+    // Highlight questions container with a cyberpunk glowing pulse
+    const qContainer = document.getElementById("student-questions-container");
+    if (qContainer) {
+      qContainer.style.transition = "box-shadow 0.6s ease";
+      qContainer.style.boxShadow = "0 0 35px rgba(0, 242, 254, 0.5)";
+      qContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      setTimeout(() => {
+        qContainer.style.boxShadow = "none";
+      }, 3500);
+    }
+  });
+
+  // 2. Questions updated (reveal/delete)
+  window.FLASHNOVA_REALTIME.on("QUESTIONS_UPDATED", async () => {
+    console.log("⚡ Realtime: Questions list updated by teacher");
+    await loadQuestions();
+  });
+
+  // 3. Teacher uploaded a new file
+  window.FLASHNOVA_REALTIME.on("NEW_FILE", async (payload) => {
+    console.log("⚡ Realtime: New Study Material uploaded by Teacher", payload);
+    const fTitle = (payload && payload.file && payload.file.title) || "New Resource";
+    showToast(`📁 LIVE MATERIAL: Teacher uploaded "${fTitle}"!`, "info");
+    await loadStudyFiles();
+    
+    const fContainer = document.getElementById("student-files-container");
+    if (fContainer) {
+      fContainer.style.transition = "box-shadow 0.6s ease";
+      fContainer.style.boxShadow = "0 0 35px rgba(121, 40, 202, 0.5)";
+      setTimeout(() => {
+        fContainer.style.boxShadow = "none";
+      }, 3500);
+    }
+  });
+
+  // 4. Files updated
+  window.FLASHNOVA_REALTIME.on("FILES_UPDATED", async () => {
+    await loadStudyFiles();
+  });
+
+  // 5. Lecture started by teacher
+  window.FLASHNOVA_REALTIME.on("LECTURE_STARTED", async (payload) => {
+    console.log("⚡ Realtime: Live lecture started by teacher", payload);
+    showToast(`🚀 Live Lecture Started: ${payload.lecture ? payload.lecture.topic : 'New Lecture'}!`, "info");
+    await loadStudentDashboard();
   });
 }

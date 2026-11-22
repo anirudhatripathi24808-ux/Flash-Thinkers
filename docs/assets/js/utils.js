@@ -558,12 +558,28 @@ function handleOfflineMockResponse(endpoint, options) {
     let files = JSON.parse(localStorage.getItem("fn_files") || "[]");
 
     if (options.method === "POST") {
+      let fileTitle = "Lecture Slides - Real-Time Limits";
+      let originalFilename = "lecture_notes.pdf";
+      let fileType = "PDF";
+      let fileSize = 1850000;
+
+      if (options.body instanceof FormData) {
+        if (options.body.get("title")) fileTitle = options.body.get("title");
+        const fileObj = options.body.get("file");
+        if (fileObj && fileObj.name) {
+          originalFilename = fileObj.name;
+          fileSize = fileObj.size || 1850000;
+          const ext = originalFilename.split(".").pop().toUpperCase();
+          fileType = ext || "PDF";
+        }
+      }
+
       const newFile = {
         id: Date.now(),
-        title: "Lecture Slides - Real-Time Limits",
-        original_filename: "lecture_slides.pdf",
-        file_type: "PDF",
-        file_size: 2100000,
+        title: fileTitle,
+        original_filename: originalFilename,
+        file_type: fileType,
+        file_size: fileSize,
         is_published: true
       };
       files.unshift(newFile);
@@ -629,7 +645,127 @@ function handleOfflineMockResponse(endpoint, options) {
   };
 }
 
-// Setup Backend Settings Modal for easy configuration on GitHub Pages
+// ==========================================
+// FLASHNOVA REALTIME BRIDGE
+// Multi-channel real-time synchronization:
+// 1. BroadcastChannel (Same-device instant cross-tab / window sync)
+// 2. LocalStorage StorageEvent (Fallback cross-tab sync)
+// 3. MQTT over WebSockets (Cross-device sync: Phone <-> Laptop across internet)
+// ==========================================
+class RealtimeBridge {
+  constructor() {
+    this.listeners = {};
+    this.clientId = "fn_" + Math.random().toString(16).substring(2, 10);
+    this.mqttClient = null;
+    this.broadcastChannel = null;
+
+    // 1. BroadcastChannel for instant cross-tab communication
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        this.broadcastChannel = new BroadcastChannel("flashnova_realtime_hub");
+        this.broadcastChannel.onmessage = (event) => {
+          if (event.data && event.data.type) {
+            this._trigger(event.data.type, event.data.payload);
+          }
+        };
+      } catch (e) {
+        console.warn("BroadcastChannel initialization:", e);
+      }
+    }
+
+    // 2. Storage event fallback for cross-tab communication
+    window.addEventListener("storage", (e) => {
+      if (e.key === "fn_realtime_event" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && parsed.type && parsed.senderId !== this.clientId) {
+            this._trigger(parsed.type, parsed.payload);
+          }
+        } catch (_) {}
+      }
+    });
+
+    // 3. Cloud MQTT over WebSockets for Cross-Device (Phone <-> Laptop)
+    this._connectMqtt();
+  }
+
+  _connectMqtt() {
+    if (typeof mqtt === "undefined") {
+      setTimeout(() => this._connectMqtt(), 1000);
+      return;
+    }
+    try {
+      this.mqttClient = mqtt.connect("wss://broker.emqx.io:8084/mqtt", {
+        clientId: this.clientId,
+        clean: true,
+        connectTimeout: 5000,
+        reconnectPeriod: 4000
+      });
+
+      this.mqttClient.on("connect", () => {
+        console.log("⚡ FLASHNOVA Realtime Cloud Bridge connected:", this.clientId);
+        this.mqttClient.subscribe("flashnova/sync/#", { qos: 0 });
+      });
+
+      this.mqttClient.on("message", (topic, msgBuffer) => {
+        try {
+          const data = JSON.parse(msgBuffer.toString());
+          if (data && data.type && data.senderId !== this.clientId) {
+            this._trigger(data.type, data.payload);
+          }
+        } catch (err) {
+          console.warn("Realtime parse error:", err);
+        }
+      });
+    } catch (err) {
+      console.warn("Realtime MQTT setup error:", err);
+    }
+  }
+
+  on(eventType, callback) {
+    if (!this.listeners[eventType]) {
+      this.listeners[eventType] = [];
+    }
+    this.listeners[eventType].push(callback);
+  }
+
+  emit(eventType, payload = {}) {
+    const envelope = {
+      type: eventType,
+      payload: payload,
+      senderId: this.clientId,
+      timestamp: Date.now()
+    };
+
+    // 1. Send to other tabs via BroadcastChannel
+    if (this.broadcastChannel) {
+      try {
+        this.broadcastChannel.postMessage(envelope);
+      } catch (_) {}
+    }
+
+    // 2. Send via LocalStorage storage event
+    try {
+      localStorage.setItem("fn_realtime_event", JSON.stringify(envelope));
+    } catch (_) {}
+
+    // 3. Send over Cloud MQTT to other devices (Phone <-> Laptop)
+    if (this.mqttClient && this.mqttClient.connected) {
+      try {
+        this.mqttClient.publish(`flashnova/sync/${eventType}`, JSON.stringify(envelope));
+      } catch (_) {}
+    }
+  }
+
+  _trigger(eventType, payload) {
+    const handlers = this.listeners[eventType] || [];
+    handlers.forEach(fn => {
+      try { fn(payload); } catch (e) { console.error("Realtime event error:", e); }
+    });
+  }
+}
+
+window.FLASHNOVA_REALTIME = new RealtimeBridge();
 function setupBackendConfigModal() {
   const btn = document.getElementById("btn-backend-settings");
   if (btn) {

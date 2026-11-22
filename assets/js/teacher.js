@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await verifyTeacherSession();
   await loadClassrooms();
   setupSocketConnection();
+  setupRealtimeListeners();
 
   // Bind Create Classroom Form
   const classroomForm = document.getElementById("form-create-classroom");
@@ -324,6 +325,9 @@ async function handleStartLecture(e) {
     document.getElementById("input-lecture-topic").value = "";
     onActiveLectureFound(res.lecture);
     await loadClassrooms();
+    if (window.FLASHNOVA_REALTIME) {
+      window.FLASHNOVA_REALTIME.emit("LECTURE_STARTED", { lecture: res.lecture });
+    }
   } else {
     showToast(res.error || "Failed to start lecture.", "error");
   }
@@ -534,6 +538,15 @@ async function handleCreateQuestion(e) {
     document.getElementById("form-create-question").reset();
     closeModal("modal-create-question");
     await loadTeacherQuestions();
+    if (window.FLASHNOVA_REALTIME) {
+      window.FLASHNOVA_REALTIME.emit("NEW_QUESTION", {
+        question: res.question || {
+          topic: topic,
+          question_text: qText,
+          is_compulsory: isCompulsory
+        }
+      });
+    }
   } else {
     showToast(res.error || "Question creation failed.", "error");
   }
@@ -590,6 +603,7 @@ async function loadTeacherQuestions() {
         if (revRes.success) {
           showToast(revRes.message, "info");
           await loadTeacherQuestions();
+          if (window.FLASHNOVA_REALTIME) window.FLASHNOVA_REALTIME.emit("QUESTIONS_UPDATED", {});
         }
       };
     });
@@ -602,6 +616,7 @@ async function loadTeacherQuestions() {
         if (delRes.success) {
           showToast("Question deleted.", "info");
           await loadTeacherQuestions();
+          if (window.FLASHNOVA_REALTIME) window.FLASHNOVA_REALTIME.emit("QUESTIONS_UPDATED", {});
         }
       };
     });
@@ -643,6 +658,9 @@ async function handleFileUpload(e) {
     document.getElementById("form-upload-file").reset();
     closeModal("modal-upload-file");
     await loadTeacherFiles();
+    if (window.FLASHNOVA_REALTIME) {
+      window.FLASHNOVA_REALTIME.emit("NEW_FILE", { file: res.file });
+    }
   } else {
     showToast(res.error || "File upload failed.", "error");
   }
@@ -693,6 +711,7 @@ async function loadTeacherFiles() {
         if (pubRes.success) {
           showToast(pubRes.message, "info");
           await loadTeacherFiles();
+          if (window.FLASHNOVA_REALTIME) window.FLASHNOVA_REALTIME.emit("FILES_UPDATED", {});
         }
       };
     });
@@ -705,6 +724,7 @@ async function loadTeacherFiles() {
         if (delRes.success) {
           showToast("File deleted.", "info");
           await loadTeacherFiles();
+          if (window.FLASHNOVA_REALTIME) window.FLASHNOVA_REALTIME.emit("FILES_UPDATED", {});
         }
       };
     });
@@ -732,5 +752,59 @@ function setupSocketConnection() {
   socket.on("new_voluntary_doubt", (data) => {
     showToast(`New voluntary doubt from ${data.student_name}!`, "warning");
     loadTeacherDoubts();
+  });
+}
+
+// Realtime Hub Listeners
+function setupRealtimeListeners() {
+  if (!window.FLASHNOVA_REALTIME) return;
+
+  // 1. Student scanned QR code and marked attendance
+  window.FLASHNOVA_REALTIME.on("STUDENT_ATTENDED", async (payload) => {
+    console.log("⚡ Realtime: Student QR attendance received", payload);
+    showToast(`⚡ Live Attendance: Student ${payload.student_name || 'Enrolled'} scanned QR!`, "success");
+
+    const tableBody = document.querySelector("#table-lecture-attendance tbody");
+    if (tableBody) {
+      const masked = (payload.enrollment_no && payload.enrollment_no.length >= 6)
+        ? `${payload.enrollment_no.substring(0, 4)}******`
+        : "2026******";
+      const newRow = document.createElement("tr");
+      newRow.style.animation = "fadeIn 0.5s ease";
+      newRow.style.background = "rgba(0, 242, 254, 0.12)";
+      newRow.innerHTML = `
+        <td><span class="masked-enrollment-tag">${masked} (Live Scan)</span></td>
+        <td><span class="badge-cyber badge-emerald"><i class="fa-solid fa-circle-check"></i> Present</span></td>
+        <td class="text-muted" style="font-size: 0.8rem;">${payload.timestamp || new Date().toLocaleTimeString()}</td>
+      `;
+      if (tableBody.firstChild) {
+        tableBody.insertBefore(newRow, tableBody.firstChild);
+      } else {
+        tableBody.appendChild(newRow);
+      }
+    }
+  });
+
+  // 2. Student answered a question
+  window.FLASHNOVA_REALTIME.on("QUESTION_ANSWERED", async (payload) => {
+    console.log("⚡ Realtime: Student question answer received", payload);
+    const correctLabel = payload.is_correct ? "Correct! 🎯" : "Attempted";
+    showToast(`📝 Live Answer: Student ${payload.student_name || 'Anonymous'} answered Option ${payload.selected_option} (${correctLabel})`, "info");
+    await loadTeacherQuestions();
+  });
+
+  // 3. Student submitted voluntary doubt
+  window.FLASHNOVA_REALTIME.on("NEW_DOUBT", async (payload) => {
+    console.log("⚡ Realtime: New Doubt received from student", payload);
+    showToast(`🙋 Live Doubt: ${payload.student_name || 'Student'} asked about "${payload.topic}"!`, "warning");
+    await loadTeacherDoubts();
+  });
+
+  // 4. Student understanding radar feedback
+  window.FLASHNOVA_REALTIME.on("CONFUSION_UPDATE", async (payload) => {
+    console.log("⚡ Realtime: Confusion feedback from student", payload);
+    if (activeLectureId) {
+      loadLectureAnalytics(activeLectureId);
+    }
   });
 }
